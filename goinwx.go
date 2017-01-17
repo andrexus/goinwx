@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/logutils"
-	"github.com/kolo/xmlrpc"
+	"github.com/andrexus/xmlrpc"
 )
 
 const (

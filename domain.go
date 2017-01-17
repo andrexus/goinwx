@@ -82,27 +82,45 @@ type DomainRegisterResponse struct {
 }
 
 type DomainInfoResponse struct {
-	RoId         int    `mapstructure:"roId"`
-	Domain       string `mapstructure:"domain"`
-	DomainAce    string `mapstructure:"domainAce"`
-	Period       string //`mapstructure:"period"`
-	CrDate       string //`mapstructure:"crDate"`
-	ExDate       string //`mapstructure:"exDate"`
-	UpDate       string //`mapstructure:"upDate"`
-	ReDate       string //`mapstructure:"reDate"`
-	ScDate       string //`mapstructure:"scDate"`
-	TransferLock string //`mapstructure:"transferLock"`
-	Status       string //`mapstructure:"status"`
-	AuthCode     string //`mapstructure:"authCode"`
-	RenewalMode  string //`mapstructure:"renewalMode"`
-	TransferMode string //`mapstructure:"transferMode"`
-	Registrant   string //`mapstructure:"registrant"`
-	Admin        string //`mapstructure:"admin"`
-	Tech         string //`mapstructure:"tech"`
-	Billing      string //`mapstructure:"billing"`
-	Ns           string //`mapstructure:"ns"`
-	NoDelegation string //`mapstructure:"noDelegation"`
-	Contact      string //`mapstructure:"contact"`
+	RoId         int                `mapstructure:"roId"`
+	Domain       string             `mapstructure:"domain"`
+	DomainAce    string             `mapstructure:"domainAce"`
+	Period       string             `mapstructure:"period"`
+	CrDate       time.Time          `mapstructure:"crDate"`
+	ExDate       time.Time          `mapstructure:"exDate"`
+	UpDate       time.Time          `mapstructure:"upDate"`
+	ReDate       time.Time          `mapstructure:"reDate"`
+	ScDate       time.Time          `mapstructure:"scDate"`
+	TransferLock int                `mapstructure:"transferLock"`
+	Status       string             `mapstructure:"status"`
+	AuthCode     string             `mapstructure:"authCode"`
+	RenewalMode  string             `mapstructure:"renewalMode"`
+	TransferMode string             `mapstructure:"transferMode"`
+	Registrant   int                `mapstructure:"registrant"`
+	Admin        int                `mapstructure:"admin"`
+	Tech         int                `mapstructure:"tech"`
+	Billing      int                `mapstructure:"billing"`
+	Ns           []string           `mapstructure:"ns"`
+	NoDelegation string             `mapstructure:"noDelegation"`
+	Contacts     map[string]Contact `mapstructure:"contact"`
+}
+
+type Contact struct {
+	RoId          int
+	Id            int
+	Type          string
+	Name          string
+	Org           string
+	Street        string
+	City          string
+	PostalCode    string `mapstructure:"pc"`
+	StateProvince string `mapstructure:"sp"`
+	Country       string `mapstructure:"cc"`
+	Phone         string `mapstructure:"voice"`
+	Fax           string
+	Email         string
+	Remarks       string
+	Protection    int
 }
 
 func (s *DomainServiceOp) Check(domains []string) ([]DomainCheckResponse, error) {
