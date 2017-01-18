@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 
+	"errors"
+
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
 )
@@ -34,6 +36,8 @@ type DomainService interface {
 	Register(request *DomainRegisterRequest) (*DomainRegisterResponse, error)
 	Delete(domain string, scheduledDate time.Time) error
 	Info(domain string, roId int) (*DomainInfoResponse, error)
+	List(*DomainListRequest) (*DomainList, error)
+	Whois(domain string) (string, error)
 }
 
 type DomainServiceOp struct {
@@ -100,7 +104,7 @@ type DomainInfoResponse struct {
 	Admin        int                `mapstructure:"admin"`
 	Tech         int                `mapstructure:"tech"`
 	Billing      int                `mapstructure:"billing"`
-	Ns           []string           `mapstructure:"ns"`
+	Nameservers  []string           `mapstructure:"ns"`
 	NoDelegation string             `mapstructure:"noDelegation"`
 	Contacts     map[string]Contact `mapstructure:"contact"`
 }
@@ -121,6 +125,28 @@ type Contact struct {
 	Email         string
 	Remarks       string
 	Protection    int
+}
+
+type DomainListRequest struct {
+	Domain       string `structs:"domain,omitempty"`
+	RoId         int    `structs:"roId,omitempty"`
+	Status       int    `structs:"status,omitempty"`
+	Registrant   int    `structs:"registrant,omitempty"`
+	Admin        int    `structs:"admin,omitempty"`
+	Tech         int    `structs:"tech,omitempty"`
+	Billing      int    `structs:"billing,omitempty"`
+	RenewalMode  int    `structs:"renewalMode,omitempty"`
+	TransferLock int    `structs:"transferLock,omitempty"`
+	NoDelegation int    `structs:"noDelegation,omitempty"`
+	Tag          int    `structs:"tag,omitempty"`
+	Order        int    `structs:"order,omitempty"`
+	Page         int    `structs:"page,omitempty"`
+	Pagelimit    int    `structs:"pagelimit,omitempty"`
+}
+
+type DomainList struct {
+	Count   int
+	Domains []DomainInfoResponse `mapstructure:"domain"`
 }
 
 func (s *DomainServiceOp) Check(domains []string) ([]DomainCheckResponse, error) {
@@ -194,4 +220,46 @@ func (s *DomainServiceOp) Info(domain string, roId int) (*DomainInfoResponse, er
 	fmt.Println("Response", result)
 
 	return &result, nil
+}
+
+func (s *DomainServiceOp) List(request *DomainListRequest) (*DomainList, error) {
+	if request == nil {
+		return nil, errors.New("Request can't be nil")
+	}
+	requestMap := structs.Map(request)
+	requestMap["wide"] = "2"
+
+	req := s.client.NewRequest(methodDomainList, requestMap)
+
+	resp, err := s.client.Do(*req)
+	if err != nil {
+		return nil, err
+	}
+
+	var result DomainList
+	err = mapstructure.Decode(*resp, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (s *DomainServiceOp) Whois(domain string) (string, error) {
+	req := s.client.NewRequest(methodDomainWhois, map[string]interface{}{
+		"domain": domain,
+	})
+
+	resp, err := s.client.Do(*req)
+	if err != nil {
+		return "", err
+	}
+
+	var result map[string]string
+	err = mapstructure.Decode(*resp, &result)
+	if err != nil {
+		return "", err
+	}
+
+	return result["whois"], nil
 }
