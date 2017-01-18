@@ -3,6 +3,8 @@ package goinwx
 import (
 	"errors"
 
+	"time"
+
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
 )
@@ -54,6 +56,29 @@ type NameserverRecordRequest struct {
 }
 
 type NamserverInfoResponse struct {
+	RoId          int
+	Domain        string
+	Type          string
+	MasterIp      string
+	LastZoneCheck time.Time
+	SlaveDns      interface{}
+	SOAserial     string
+	Count         int
+	Records       []NameserverRecord `mapstructure:"record"`
+}
+
+type NameserverRecord struct {
+	Id                     int
+	Name                   string
+	Type                   string
+	Content                string
+	Ttl                    int
+	Prio                   int
+	UrlRedirectType        string
+	UrlRedirectTitle       string
+	UrlRedirectDescription string
+	UrlRedirectKeywords    string
+	UrlRedirectFavIcon     string
 }
 
 func (s *NameserverServiceOp) Check(domain string, nameservers []string) (*NameserverCheckResponse, error) {
