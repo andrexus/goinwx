@@ -7,8 +7,8 @@ import (
 
 	"fmt"
 
-	"github.com/hashicorp/logutils"
 	"github.com/andrexus/xmlrpc"
+	"github.com/hashicorp/logutils"
 )
 
 const (
@@ -37,22 +37,23 @@ func init() {
 // Client manages communication with INWX API.
 type Client struct {
 	// HTTP client used to communicate with the INWX API.
-	RPCClient   *xmlrpc.Client
+	RPCClient *xmlrpc.Client
 
 	// Base URL for API requests.
-	BaseURL     *url.URL
+	BaseURL *url.URL
 
 	// API username
-	Username    string
+	Username string
 
 	// API password
-	Password    string
+	Password string
 
 	// User agent for client
 	APILanguage string
 
 	// Services used for communicating with the API
 	Domains     DomainService
+	Nameservers NameserverService
 }
 
 type Request struct {
@@ -100,6 +101,7 @@ func NewClient(username, password string) *Client {
 	}
 
 	client.Domains = &DomainServiceOp{client: client}
+	client.Nameservers = &NameserverServiceOp{client: client}
 
 	return client
 }
