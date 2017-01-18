@@ -23,10 +23,11 @@ const (
 
 type NameserverService interface {
 	Check(domain string, nameservers []string) (*NameserverCheckResponse, error)
-	Info(domain string, roId int) (*NamserverInfoResponse, error)
+	Info(domain string, domainId int) (*NamserverInfoResponse, error)
+	List(domain string) (*NamserverListResponse, error)
 	CreateRecord(*NameserverRecordRequest) (int, error)
-	UpdateRecord(recordId int, request *NameserverRecordRequest) error
-	DeleteRecord(recordId int) error
+	UpdateRecord(recId int, request *NameserverRecordRequest) error
+	DeleteRecord(recId int) error
 }
 
 type NameserverServiceOp struct {
@@ -47,7 +48,7 @@ type NameserverRecordRequest struct {
 	Content                string `structs:"content"`
 	Name                   string `structs:"name,omitempty"`
 	Ttl                    int    `structs:"ttl,omitempty"`
-	Prio                   int    `structs:"prio,omitempty"`
+	Priority               int    `structs:"prio,omitempty"`
 	UrlRedirectType        string `structs:"urlRedirectType,omitempty"`
 	UrlRedirectTitle       string `structs:"urlRedirectTitle,omitempty"`
 	UrlRedirectDescription string `structs:"urlRedirectDescription,omitempty"`
@@ -81,6 +82,23 @@ type NameserverRecord struct {
 	UrlRedirectFavIcon     string
 }
 
+type NamserverListResponse struct {
+	Count   int
+	Domains []NameserverDomain `mapstructure:"domains"`
+}
+
+type NameserverDomain struct {
+	RoId     int    `mapstructure:"roId"`
+	Domain   string `mapstructure:"domain"`
+	Type     string `mapstructure:"type"`
+	MasterIp string `mapstructure:"masterIp"`
+	Mail     string `mapstructure:"mail"`
+	Web      string `mapstructure:"web"`
+	Url      string `mapstructure:"url"`
+	Ipv4     string `mapstructure:"ipv4"`
+	Ipv6     string `mapstructure:"ipv6"`
+}
+
 func (s *NameserverServiceOp) Check(domain string, nameservers []string) (*NameserverCheckResponse, error) {
 	req := s.client.NewRequest(methodNameserverCheck, map[string]interface{}{
 		"domain": domain,
@@ -101,12 +119,14 @@ func (s *NameserverServiceOp) Check(domain string, nameservers []string) (*Names
 	return &result, nil
 }
 
-func (s *NameserverServiceOp) Info(domain string, roId int) (*NamserverInfoResponse, error) {
-	requestMap := map[string]interface{}{
-		"domain": domain,
+func (s *NameserverServiceOp) Info(domain string, domainId int) (*NamserverInfoResponse, error) {
+	var requestMap = make(map[string]interface{})
+
+	if domain != "" {
+		requestMap["domain"] = domain
 	}
-	if roId != 0 {
-		requestMap["roId"] = roId
+	if domainId != 0 {
+		requestMap["roId"] = domainId
 	}
 	req := s.client.NewRequest(methodNameserverInfo, requestMap)
 
@@ -115,6 +135,28 @@ func (s *NameserverServiceOp) Info(domain string, roId int) (*NamserverInfoRespo
 		return nil, err
 	}
 	var result NamserverInfoResponse
+	err = mapstructure.Decode(*resp, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (s *NameserverServiceOp) List(domain string) (*NamserverListResponse, error) {
+	requestMap := map[string]interface{}{
+		"wide": 2,
+	}
+	if domain != "" {
+		requestMap["domain"] = domain
+	}
+	req := s.client.NewRequest(methodNameserverList, requestMap)
+
+	resp, err := s.client.Do(*req)
+	if err != nil {
+		return nil, err
+	}
+	var result NamserverListResponse
 	err = mapstructure.Decode(*resp, &result)
 	if err != nil {
 		return nil, err
@@ -141,12 +183,12 @@ func (s *NameserverServiceOp) CreateRecord(request *NameserverRecordRequest) (in
 	return result["id"], nil
 }
 
-func (s *NameserverServiceOp) UpdateRecord(recordId int, request *NameserverRecordRequest) error {
+func (s *NameserverServiceOp) UpdateRecord(recId int, request *NameserverRecordRequest) error {
 	if request == nil {
 		return errors.New("Request can't be nil")
 	}
 	requestMap := structs.Map(request)
-	requestMap["id"] = recordId
+	requestMap["id"] = recId
 
 	req := s.client.NewRequest(methodNameserverUpdateRecord, requestMap)
 
@@ -158,9 +200,9 @@ func (s *NameserverServiceOp) UpdateRecord(recordId int, request *NameserverReco
 	return nil
 }
 
-func (s *NameserverServiceOp) DeleteRecord(recordId int) error {
+func (s *NameserverServiceOp) DeleteRecord(recId int) error {
 	req := s.client.NewRequest(methodNameserverDeleteRecord, map[string]interface{}{
-		"id": recordId,
+		"id": recId,
 	})
 
 	_, err := s.client.Do(*req)

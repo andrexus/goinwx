@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	libraryVersion    = "0.1.0"
+	libraryVersion    = "0.2.0"
 	sandboxEnabled    = "GOINWX_SANDBOX"
 	logLevelEnvName   = "GOINWX_LOG"
 	APIBaseUrl        = "https://api.domrobot.com/xmlrpc/"
