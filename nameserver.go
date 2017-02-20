@@ -7,6 +7,7 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
+	"fmt"
 )
 
 const (
@@ -28,6 +29,7 @@ type NameserverService interface {
 	CreateRecord(*NameserverRecordRequest) (int, error)
 	UpdateRecord(recId int, request *NameserverRecordRequest) error
 	DeleteRecord(recId int) error
+	FindRecordById(recId int) (*NameserverRecord, *NameserverDomain, error)
 }
 
 type NameserverServiceOp struct {
@@ -145,6 +147,7 @@ func (s *NameserverServiceOp) Info(domain string, domainId int) (*NamserverInfoR
 
 func (s *NameserverServiceOp) List(domain string) (*NamserverListResponse, error) {
 	requestMap := map[string]interface{}{
+		"domain": "*",
 		"wide": 2,
 	}
 	if domain != "" {
@@ -211,4 +214,31 @@ func (s *NameserverServiceOp) DeleteRecord(recId int) error {
 	}
 
 	return nil
+}
+
+func (s *NameserverServiceOp) FindRecordById(recId int) (*NameserverRecord, *NameserverDomain, error) {
+	var domain *NameserverDomain
+	var rec *NameserverRecord
+
+	listResp, err := s.client.Nameservers.List("")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for _, domainItem := range listResp.Domains {
+		resp, err := s.client.Nameservers.Info("", domainItem.RoId)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		for _, record := range resp.Records {
+			if record.Id == recId {
+				rec = &record
+				domain = &domainItem
+				return rec, domain, nil
+			}
+		}
+	}
+	return nil, nil, errors.New(fmt.Sprintf("Couldn't find INWX Record for id %d", recId))
+
 }

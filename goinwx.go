@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	libraryVersion    = "0.2.0"
-	sandboxEnabled    = "GOINWX_SANDBOX"
+	libraryVersion    = "0.2.1"
 	logLevelEnvName   = "GOINWX_LOG"
 	APIBaseUrl        = "https://api.domrobot.com/xmlrpc/"
 	APISandboxBaseUrl = "https://api.ote.domrobot.com/xmlrpc/"
@@ -56,6 +55,10 @@ type Client struct {
 	Nameservers NameserverService
 }
 
+type ClientOptions struct {
+	Sandbox bool
+}
+
 type Request struct {
 	ServiceMethod string
 	Args          map[string]interface{}
@@ -79,15 +82,20 @@ type ErrorResponse struct {
 }
 
 // NewClient returns a new INWX API client.
-func NewClient(username, password string) *Client {
-	useSandbox := os.Getenv(sandboxEnabled)
+func NewClient(username, password string, opts *ClientOptions) *Client {
+	useSandbox := false
+
+	if opts != nil {
+		useSandbox = opts.Sandbox
+	}
 
 	var baseURL *url.URL
 
-	if useSandbox == "" {
-		baseURL, _ = url.Parse(APIBaseUrl)
-	} else {
+	if useSandbox == true {
 		baseURL, _ = url.Parse(APISandboxBaseUrl)
+
+	} else {
+		baseURL, _ = url.Parse(APIBaseUrl)
 	}
 
 	rpcClient, _ := xmlrpc.NewClient(baseURL.String(), nil)
