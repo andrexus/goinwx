@@ -1,0 +1,12 @@
+hash: c6bb3bea8ed6ea02b7a0773bf1e1ffd84965fe45c91f4f3dc6d2e0128791f7a2
+updated: 2017-04-17T21:08:27.029561953+02:00
+imports:
+- name: github.com/andrexus/xmlrpc
+  version: 748f22b60198b74de8f11c9c7f11d721b9ba2a4b
+- name: github.com/fatih/structs
+  version: a720dfa8df582c51dee1b36feabb906bde1588bd
+- name: github.com/hashicorp/logutils
+  version: 0dc08b1671f34c4250ce212759ebd880f743d883
+- name: github.com/mitchellh/mapstructure
+  version: 5a0325d7fafaac12dda6e7fb8bd222ec1b69875e
+testImports: []
