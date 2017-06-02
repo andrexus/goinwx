@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	libraryVersion    = "0.2.1"
+	libraryVersion    = "0.3.0"
 	logLevelEnvName   = "GOINWX_LOG"
 	APIBaseUrl        = "https://api.domrobot.com/xmlrpc/"
 	APISandboxBaseUrl = "https://api.ote.domrobot.com/xmlrpc/"
@@ -51,6 +51,7 @@ type Client struct {
 	APILanguage string
 
 	// Services used for communicating with the API
+	Account     AccountService
 	Domains     DomainService
 	Nameservers NameserverService
 }
@@ -108,35 +109,11 @@ func NewClient(username, password string, opts *ClientOptions) *Client {
 		Password: password,
 	}
 
+	client.Account = &AccountServiceOp{client: client}
 	client.Domains = &DomainServiceOp{client: client}
 	client.Nameservers = &NameserverServiceOp{client: client}
 
 	return client
-}
-
-func (c *Client) Login() error {
-	req := c.NewRequest("account.login", map[string]interface{}{
-		"user": c.Username,
-		"pass": c.Password,
-	})
-
-	_, err := c.Do(*req)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *Client) Logout() error {
-	req := c.NewRequest("account.logout", nil)
-
-	_, err := c.Do(*req)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // NewRequest creates an API request.
