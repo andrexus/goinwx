@@ -36,6 +36,7 @@ type DomainService interface {
 	Register(request *DomainRegisterRequest) (*DomainRegisterResponse, error)
 	Delete(domain string, scheduledDate time.Time) error
 	Info(domain string, roId int) (*DomainInfoResponse, error)
+	GetPrices(tlds []string) ([]DomainPriceResponse, error)
 	List(*DomainListRequest) (*DomainList, error)
 	Whois(domain string) (string, error)
 }
@@ -58,6 +59,27 @@ type DomainCheckResponse struct {
 	CheckMethod string  `mapstructure:"checkmethod"`
 	Price       float32 `mapstructure:"price"`
 	CheckTime   float32 `mapstructure:"checktime"`
+}
+
+type domainPriceResponseRoot struct {
+	Prices []DomainPriceResponse `mapstructure:"price"`
+}
+type DomainPriceResponse struct {
+	Tld                 string  `mapstructure:"tld"`
+	Currency            string  `mapstructure:"currency"`
+	CreatePrice         float32 `mapstructure:"createPrice"`
+	MonthlyCreatePrice  float32 `mapstructure:"monthlyCreatePrice"`
+	TransferPrice       float32 `mapstructure:"transferPrice"`
+	RenewalPrice        float32 `mapstructure:"renewalPrice"`
+	MonthlyRenewalPrice float32 `mapstructure:"monthlyRenewalPrice"`
+	UpdatePrice         float32 `mapstructure:"updatePrice"`
+	TradePrice          float32 `mapstructure:"tradePrice"`
+	TrusteePrice        float32 `mapstructure:"trusteePrice"`
+	MonthlyTrusteePrice float32 `mapstructure:"monthlyTrusteePrice"`
+	CreatePeriod        int     `mapstructure:"createPeriod"`
+	TransferPeriod      int     `mapstructure:"transferPeriod"`
+	RenewalPeriod       int     `mapstructure:"renewalPeriod"`
+	TradePeriod         int     `mapstructure:"tradePeriod"`
 }
 
 type DomainRegisterRequest struct {
@@ -167,6 +189,26 @@ func (s *DomainServiceOp) Check(domains []string) ([]DomainCheckResponse, error)
 	}
 
 	return root.Domains, nil
+}
+
+func (s *DomainServiceOp) GetPrices(tlds []string) ([]DomainPriceResponse, error) {
+	req := s.client.NewRequest(methodDomainGetPrices, map[string]interface{}{
+		"tld": tlds,
+		"vat": false,
+	})
+
+	resp, err := s.client.Do(*req)
+	if err != nil {
+		return nil, err
+	}
+
+	root := new(domainPriceResponseRoot)
+	err = mapstructure.Decode(*resp, &root)
+	if err != nil {
+		return nil, err
+	}
+
+	return root.Prices, nil
 }
 
 func (s *DomainServiceOp) Register(request *DomainRegisterRequest) (*DomainRegisterResponse, error) {
