@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	libraryVersion    = "0.3.1"
+	libraryVersion    = "0.3.2"
 	logLevelEnvName   = "GOINWX_LOG"
 	APIBaseUrl        = "https://api.domrobot.com/xmlrpc/"
 	APISandboxBaseUrl = "https://api.ote.domrobot.com/xmlrpc/"
@@ -54,6 +54,7 @@ type Client struct {
 	Account     AccountService
 	Domains     DomainService
 	Nameservers NameserverService
+	Contacts    ContactService
 }
 
 type ClientOptions struct {
@@ -112,6 +113,7 @@ func NewClient(username, password string, opts *ClientOptions) *Client {
 	client.Account = &AccountServiceOp{client: client}
 	client.Domains = &DomainServiceOp{client: client}
 	client.Nameservers = &NameserverServiceOp{client: client}
+	client.Contacts = &ContactServiceOp{client: client}
 
 	return client
 }
