@@ -133,7 +133,7 @@ type DomainInfoResponse struct {
 
 type Contact struct {
 	RoId          int
-	Id            int
+	Id            string
 	Type          string
 	Name          string
 	Org           string

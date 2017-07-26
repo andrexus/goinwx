@@ -5,9 +5,10 @@ import (
 
 	"time"
 
+	"fmt"
+
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
-	"fmt"
 )
 
 const (
@@ -24,6 +25,7 @@ const (
 
 type NameserverService interface {
 	Check(domain string, nameservers []string) (*NameserverCheckResponse, error)
+	Create(*NameserverCreateRequest) (int, error)
 	Info(domain string, domainId int) (*NamserverInfoResponse, error)
 	List(domain string) (*NamserverListResponse, error)
 	CreateRecord(*NameserverRecordRequest) (int, error)
@@ -56,6 +58,22 @@ type NameserverRecordRequest struct {
 	UrlRedirectDescription string `structs:"urlRedirectDescription,omitempty"`
 	UrlRedirectFavIcon     string `structs:"urlRedirectFavIcon,omitempty"`
 	UrlRedirectKeywords    string `structs:"urlRedirectKeywords,omitempty"`
+}
+
+type NameserverCreateRequest struct {
+	Domain                 string   `structs:"domain"`
+	Type                   string   `structs:"type"`
+	Nameservers            []string `structs:"ns,omitempty"`
+	MasterIp               string   `structs:"masterIp,omitempty"`
+	Web                    string   `structs:"web,omitempty"`
+	Mail                   string   `structs:"mail,omitempty"`
+	SoaEmail               string   `structs:"soaEmail,omitempty"`
+	UrlRedirectType        string   `structs:"urlRedirectType,omitempty"`
+	UrlRedirectTitle       string   `structs:"urlRedirectTitle,omitempty"`
+	UrlRedirectDescription string   `structs:"urlRedirectDescription,omitempty"`
+	UrlRedirectFavIcon     string   `structs:"urlRedirectFavIcon,omitempty"`
+	UrlRedirectKeywords    string   `structs:"urlRedirectKeywords,omitempty"`
+	Testing                bool     `structs:"testing,omitempty"`
 }
 
 type NamserverInfoResponse struct {
@@ -148,7 +166,7 @@ func (s *NameserverServiceOp) Info(domain string, domainId int) (*NamserverInfoR
 func (s *NameserverServiceOp) List(domain string) (*NamserverListResponse, error) {
 	requestMap := map[string]interface{}{
 		"domain": "*",
-		"wide": 2,
+		"wide":   2,
 	}
 	if domain != "" {
 		requestMap["domain"] = domain
@@ -166,6 +184,23 @@ func (s *NameserverServiceOp) List(domain string) (*NamserverListResponse, error
 	}
 
 	return &result, nil
+}
+
+func (s *NameserverServiceOp) Create(request *NameserverCreateRequest) (int, error) {
+	req := s.client.NewRequest(methodNameserverCreate, structs.Map(request))
+
+	resp, err := s.client.Do(*req)
+	if err != nil {
+		return 0, err
+	}
+
+	var result map[string]int
+	err = mapstructure.Decode(*resp, &result)
+	if err != nil {
+		return 0, err
+	}
+
+	return result["roId"], nil
 }
 
 func (s *NameserverServiceOp) CreateRecord(request *NameserverRecordRequest) (int, error) {
