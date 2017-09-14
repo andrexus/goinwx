@@ -1,0 +1,12 @@
+[[constraint]]
+  name = "github.com/andrexus/xmlrpc"
+
+[[constraint]]
+  name = "github.com/fatih/structs"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/hashicorp/logutils"
+
+[[constraint]]
+  name = "github.com/mitchellh/mapstructure"

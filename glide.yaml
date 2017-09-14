@@ -1,7 +1,0 @@
-package: github.com/andrexus/goinwx
-import:
-- package: github.com/andrexus/xmlrpc
-- package: github.com/fatih/structs
-  version: ^1.0.0
-- package: github.com/hashicorp/logutils
-- package: github.com/mitchellh/mapstructure
