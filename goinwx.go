@@ -7,7 +7,7 @@ import (
 
 	"fmt"
 
-	"github.com/andrexus/xmlrpc"
+	"github.com/kolo/xmlrpc"
 	"github.com/hashicorp/logutils"
 )
 
