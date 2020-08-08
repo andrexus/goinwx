@@ -128,7 +128,7 @@ type DomainInfoResponse struct {
 	Tech         int                `mapstructure:"tech"`
 	Billing      int                `mapstructure:"billing"`
 	Nameservers  []string           `mapstructure:"ns"`
-	NoDelegation int             `mapstructure:"noDelegation"`
+	NoDelegation int                `mapstructure:"noDelegation"`
 	Contacts     map[string]Contact `mapstructure:"contact"`
 }
 
@@ -157,8 +157,9 @@ type Contact struct {
 	Fax           string
 	Email         string
 	Remarks       string
-	Protection    int
+	Protection    string
 }
+
 
 type DomainListRequest struct {
 	Domain       string `structs:"domain,omitempty"`
