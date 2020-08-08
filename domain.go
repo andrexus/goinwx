@@ -321,7 +321,7 @@ func (s *DomainServiceOp) Whois(domain string) (string, error) {
 func (s *DomainServiceOp) Update(request *DomainUpdateRequest) (error) {
 	req := s.client.NewRequest(methodDomainUpdate, structs.Map(request))
 
-	fmt.Println("Req", req.Args)
+	//fmt.Println("Req", req.Args)
 
 	_, err := s.client.Do(*req)
 	if err != nil {
