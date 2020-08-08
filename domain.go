@@ -3,8 +3,6 @@ package goinwx
 import (
 	"time"
 
-	"fmt"
-
 	"errors"
 
 	"github.com/fatih/structs"
