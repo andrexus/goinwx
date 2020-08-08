@@ -39,6 +39,7 @@ type DomainService interface {
 	GetPrices(tlds []string) ([]DomainPriceResponse, error)
 	List(*DomainListRequest) (*DomainList, error)
 	Whois(domain string) (string, error)
+	Update(request *DomainUpdateRequest) (error)
 }
 
 type DomainServiceOp struct {
@@ -129,6 +130,16 @@ type DomainInfoResponse struct {
 	Nameservers  []string           `mapstructure:"ns"`
 	NoDelegation int             `mapstructure:"noDelegation"`
 	Contacts     map[string]Contact `mapstructure:"contact"`
+}
+
+type DomainUpdateRequest struct {
+	Domain       string             `structs:"domain"`
+	Nameservers  []string           `structs:"ns,omitempty"`
+	TransferLock int                `structs:"transferLock,omitempty"`
+	AuthCode     string             `structs:"authCode,omitempty"`
+	ScDate       time.Time          `structs:"scDate,omitempty"`
+	RenewalMode  string             `structs:"renewalMode,omitempty"`
+	TransferMode string             `structs:"transferMode,omitempty"`
 }
 
 type Contact struct {
@@ -304,4 +315,17 @@ func (s *DomainServiceOp) Whois(domain string) (string, error) {
 	}
 
 	return result["whois"], nil
+}
+
+func (s *DomainServiceOp) Update(request *DomainUpdateRequest) (error) {
+	req := s.client.NewRequest(methodDomainUpdate, structs.Map(request))
+
+	fmt.Println("Req", req.Args)
+
+	_, err := s.client.Do(*req)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
