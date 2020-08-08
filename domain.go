@@ -127,7 +127,7 @@ type DomainInfoResponse struct {
 	Tech         int                `mapstructure:"tech"`
 	Billing      int                `mapstructure:"billing"`
 	Nameservers  []string           `mapstructure:"ns"`
-	NoDelegation string             `mapstructure:"noDelegation"`
+	NoDelegation int             `mapstructure:"noDelegation"`
 	Contacts     map[string]Contact `mapstructure:"contact"`
 }
 
@@ -259,7 +259,7 @@ func (s *DomainServiceOp) Info(domain string, roId int) (*DomainInfoResponse, er
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Response", result)
+	//fmt.Println("Response", result)
 
 	return &result, nil
 }
