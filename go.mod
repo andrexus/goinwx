@@ -1,4 +1,4 @@
-module goinwx
+module github.com/svenpeter42/goinwx
 
 go 1.14
 
